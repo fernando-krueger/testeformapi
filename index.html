@@ -1,67 +1,50 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-  <meta charset="UTF-8">
-  <title>Formulário para UiPath</title>
-</head>
-<body>
-  <h2>Cadastro</h2>
-  <form id="formulario">
-    <label for="nome">Nome completo:</label><br>
-    <input type="text" id="nome" name="nome"><br><br>
+<script>
+  document.getElementById("formulario").addEventListener("submit", async function(event) {
+    event.preventDefault();
 
-    <label for="cpf">CPF:</label><br>
-    <input type="text" id="cpf" name="cpf"><br><br>
+    const nome = document.getElementById("nome").value.trim();
+    const cpf = document.getElementById("cpf").value.trim();
 
-    <button type="submit">Enviar</button>
-  </form>
+    if (!nome || !cpf) {
+      alert("Por favor, preencha todos os campos.");
+      return;
+    }
 
-  <script>
-    document.getElementById("formulario").addEventListener("submit", async function(event) {
-      event.preventDefault();
+    const cpfLimpo = cpf.replace(/\D/g, "");
+    if (cpfLimpo.length !== 11) {
+      alert("O CPF deve conter 11 dígitos numéricos.");
+      return;
+    }
 
-      const nome = document.getElementById("nome").value.trim();
-      const cpf = document.getElementById("cpf").value.trim();
+    const dados = {
+      nomeCompleto: nome,
+      cpf: cpfLimpo
+    };
 
-      // 🔴 Validações básicas
-      if (!nome || !cpf) {
-        alert("Por favor, preencha todos os campos.");
-        return;
-      }
+    try {
+      const response = await fetch("http://SEU_SERVIDOR/enviar-dados", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dados)
+      });
 
-      // 🔴 Validação simples de CPF: apenas números e 11 dígitos
-      const cpfLimpo = cpf.replace(/\D/g, "");
-      if (cpfLimpo.length !== 11) {
-        alert("O CPF deve conter 11 dígitos numéricos.");
-        return;
-      }
-
-      // Dados para o UiPath
-      const dados = {
-        nomeCompleto: nome,
-        cpf: cpfLimpo
-      };
-
-      try {
-        const response = await fetch("http://SEU_SERVIDOR/enviar-dados", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(dados)
+      if (response.ok) {
+        alert("Dados enviados com sucesso!");
+        document.getElementById("formulario").reset();
+      } else {
+        const erroTexto = await response.text();
+        alert(`Erro ao enviar dados.\nStatus: ${response.status} ${response.statusText}\nDetalhes: ${erroTexto}`);
+        console.error("Resposta do servidor com erro:", {
+          status: response.status,
+          statusText: response.statusText,
+          corpo: erroTexto
         });
-
-        if (response.ok) {
-          alert("Dados enviados com sucesso!");
-          document.getElementById("formulario").reset();
-        } else {
-          alert("Erro ao enviar dados para o servidor. Tente novamente mais tarde.");
-        }
-      } catch (error) {
-        console.error("Erro:", error);
-        alert("Não foi possível conectar ao servidor. Verifique sua conexão ou tente novamente.");
       }
-    });
-  </script>
-</body>
-</html>
+    } catch (error) {
+      alert("Erro de conexão com o servidor. Veja o console para mais detalhes.");
+      console.error("Erro de rede ou falha de fetch:", error);
+    }
+  });
+</script>
