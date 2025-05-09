@@ -1,4 +1,22 @@
-<script>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Formulário para UiPath</title>
+</head>
+<body>
+  <h2>Cadastro</h2>
+  <form id="formulario">
+    <label for="nome">Nome completo:</label><br>
+    <input type="text" id="nome" name="nome"><br><br>
+
+    <label for="cpf">CPF:</label><br>
+    <input type="text" id="cpf" name="cpf"><br><br>
+
+    <button type="submit">Enviar</button>
+  </form>
+  
+  <script>
   document.getElementById("formulario").addEventListener("submit", async function(event) {
     event.preventDefault();
 
